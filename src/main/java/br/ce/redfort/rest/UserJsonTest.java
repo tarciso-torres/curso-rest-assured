@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,17 +124,17 @@ public class UserJsonTest {
 	@Test
 	public void devoUnirJsonPathComJava() {
 		ArrayList<String> names = 
-				given()
-				.when()
+				given() // Pré condições
+				.when() // Ação
 					.get("https://restapi.wcaquino.me/users")
 				.then() // Assertivas
 					.statusCode(200)
 					.extract().path("name.findAll{it.startsWith('Maria')}")
 				;
 		
-		Assert.assertEquals(1, names.size());
-		Assert.assertTrue(names.get(0).equalsIgnoreCase("Maria joaquina"));
-		Assert.assertEquals(names.get(0).toUpperCase(), "Maria joaquina".toUpperCase());
+		assertEquals(1, names.size());
+		assertTrue(names.get(0).equalsIgnoreCase("Maria joaquina"));
+		assertEquals(names.get(0).toUpperCase(), "Maria joaquina".toUpperCase());
 	}
 
 }
