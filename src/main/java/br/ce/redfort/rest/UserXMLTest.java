@@ -1,24 +1,58 @@
 package br.ce.redfort.rest;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasXPath;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.internal.path.xml.NodeImpl;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 
 public class UserXMLTest {
+	
+	public static RequestSpecification reqSpec;
+	public static ResponseSpecification resSpec;
+	
+	@BeforeClass
+	public static void setUp() {
+		RestAssured.baseURI = "https://restapi.wcaquino.me";
+//		RestAssured.port = 443;
+//		RestAssured.basePath = "";
+		
+		RequestSpecBuilder reqBuilder = new RequestSpecBuilder();
+		reqBuilder.log(LogDetail.ALL);
+		reqSpec = reqBuilder.build();
+		
+		ResponseSpecBuilder resBuilder = new ResponseSpecBuilder();
+		resBuilder.expectStatusCode(200);
+		resSpec = resBuilder.build();
+		
+		RestAssured.requestSpecification = reqSpec;
+		RestAssured.responseSpecification = resSpec;
+	}
 	
 	@Test
 	public void devoTrabalharComXML() {
 		given()
 		.when()
-			.get("https://restapi.wcaquino.me/usersXML/3")
+			.get("/usersXML/3")
 		.then()
-			.statusCode(200)
+//			.statusCode(200)
 			.rootPath("user")
 			.body("name", is("Ana Julia"))
 			.body("@id", is("3"))
@@ -41,9 +75,9 @@ public class UserXMLTest {
 	public void devoFazerPesquisasAvancadasComXML() {
 		given()
 		.when()
-			.get("https://restapi.wcaquino.me/usersXML")
+			.get("/usersXML")
 		.then()
-			.statusCode(200)
+			.spec(resSpec)
 			.body("users.user.size()", is(3))
 			.body("users.user.findAll{it.age.toInteger() <= 25}.size()", is(2))
 			.body("users.user.@id", hasItems("1", "2", "3"))
@@ -59,7 +93,7 @@ public class UserXMLTest {
 	public void devoFazerPesquisasAvancadasComXMLEJava() {
 		ArrayList<NodeImpl> nomes = given()
 		.when()
-			.get("https://restapi.wcaquino.me/usersXML")
+			.get("/usersXML")
 		.then()
 			.statusCode(200)
 			.extract().path("users.user.name.findAll{it.toString().contains('n')}")
@@ -73,7 +107,7 @@ public class UserXMLTest {
 	public void devoFazerPesquisasAvancadasComXPath() {
 		given()
 		.when()
-			.get("https://restapi.wcaquino.me/usersXML")
+			.get("/usersXML")
 		.then()
 			.statusCode(200)
 			.body(hasXPath("count(/users/user)", is("3")))
