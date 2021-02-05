@@ -2,8 +2,13 @@ package br.ce.redfort.rest;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
 
 import org.junit.Test;
+
+import io.restassured.internal.path.xml.NodeImpl;
 
 public class UserXMLTest {
 	
@@ -45,9 +50,23 @@ public class UserXMLTest {
 			.body("users.user.find{it.age == 25}.name", is("Maria Joaquina"))
 			.body("users.user.findAll{it.name.toString().contains('n')}.name", hasItems("Maria Joaquina", "Ana Julia"))
 			.body("users.user.salary.find{it != null}.toDouble()", is(1234.5678d))
-			.body("users.user.name.findAll{it.toString().startsWith('Maria')}.collect{it.toString().toUpperCase()}", is("MARIA JOAQUINA"));
+			.body("users.user.name.findAll{it.toString().startsWith('Maria')}.collect{it.toString().toUpperCase()}", is("MARIA JOAQUINA"))
 		;
 		
+	}
+	
+	@Test
+	public void devoFazerPesquisasAvancadasComXMLEJava() {
+		ArrayList<NodeImpl> nomes = given()
+		.when()
+			.get("https://restapi.wcaquino.me/usersXML")
+		.then()
+			.statusCode(200)
+			.extract().path("users.user.name.findAll{it.toString().contains('n')}")
+		;
+		assertEquals(2, nomes.size());
+		assertEquals("Maria Joaquina".toUpperCase(), nomes.get(0).toString().toUpperCase());
+		assertTrue("ANA JULIA".equalsIgnoreCase(nomes.get(1).toString()));
 	}
 
 }
