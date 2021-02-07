@@ -17,7 +17,7 @@ public class VerbosTest {
 	public void deveSalvarUsuario() {
 		given()
 			.log().all()
-			.contentType("application/json")
+			.contentType(ContentType.JSON)
 			.body("{\"name\": \"Jose\", \"age\": 50}")
 		.when()
 			.post("https://restapi.wcaquino.me/users")
@@ -31,27 +31,6 @@ public class VerbosTest {
 	}
 
 	@Test
-	public void deveSalvarUsuarioViaXMLUsandoObjeto() {
-		User usuario = new User("Usuario via XML", 40);
-		
-		User usuarioInserido = given()
-			.log().all()
-			.contentType(ContentType.XML)
-			.body(usuario)
-		.when()
-			.post("https://restapi.wcaquino.me/usersXML")
-		.then()
-			.log().all()
-			.statusCode(201)
-			.extract().body().as(User.class)
-		;
-		
-		assertThat(usuarioInserido.getId(), is(notNullValue()));
-		assertEquals(usuarioInserido.getName(), "Usuario via XML");
-		assertThat(usuarioInserido.getAge(), is(40));
-	}
-
-	@Test
 	public void deveSalvarUsuarioUsandoMap() {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("name", "Usuário via map");
@@ -59,7 +38,7 @@ public class VerbosTest {
 		
 		given()
 			.log().all()
-			.contentType("application/json")
+			.contentType(ContentType.JSON)
 			.body(params)
 		.when()
 			.post("https://restapi.wcaquino.me/users")
@@ -78,7 +57,7 @@ public class VerbosTest {
 		
 		given()
 			.log().all()
-			.contentType("application/json")
+			.contentType(ContentType.JSON)
 			.body(user)
 		.when()
 			.post("https://restapi.wcaquino.me/users")
@@ -115,7 +94,7 @@ public class VerbosTest {
 	public void naoDeveSalvarUsuarioSemNome() {
 		given()
 			.log().all()
-			.contentType("application/json")
+			.contentType(ContentType.JSON)
 			.body("{\"age\": 50}")
 		.when()
 			.post("https://restapi.wcaquino.me/users")
@@ -131,7 +110,7 @@ public class VerbosTest {
 	public void deveAlterarUsuario() {
 		given()
 			.log().all()
-			.contentType("application/json")
+			.contentType(ContentType.JSON)
 			.body("{\"name\": \"Usuário Alterado\", \"age\": 80}")
 		.when()
 			.put("https://restapi.wcaquino.me/users/1")
@@ -149,7 +128,7 @@ public class VerbosTest {
 	public void deveCustomizarURLParte1() {
 		given()
 			.log().all()
-			.contentType("application/json")
+			.contentType(ContentType.JSON)
 			.body("{\"name\": \"Usuário Alterado\", \"age\": 80}")
 		.when()
 			.put("https://restapi.wcaquino.me/{entidade}/{id}", "users", "1")
@@ -167,7 +146,7 @@ public class VerbosTest {
 	public void deveCustomizarURLParte2() {
 		given()
 			.log().all()
-			.contentType("application/json")
+			.contentType(ContentType.JSON)
 			.body("{\"name\": \"Usuário Alterado\", \"age\": 80}")
 			.pathParam("entidade", "users")
 			.pathParam("id", "1")
@@ -206,5 +185,43 @@ public class VerbosTest {
 			.statusCode(400)
 			.body("error", is("Registro inexistente"))
 		;
+	}
+
+	@Test
+	public void deveSalvarUsuarioViaXML() {
+		given()
+			.log().all()
+			.contentType(ContentType.XML)
+			.body("<user><name>Jose</name><age>50</age></user>")
+		.when()
+			.post("https://restapi.wcaquino.me/usersXML")
+		.then()
+			.log().all()
+			.statusCode(201)
+			.body("user.@id", is(notNullValue()))
+			.body("user.name", is("Jose"))
+			.body("user.age", is("50"))
+		;
+	}
+
+	@Test
+	public void deveSalvarUsuarioViaXMLUsandoObjeto() {
+		User usuario = new User("Usuario via XML", 40);
+		
+		User usuarioInserido = given()
+			.log().all()
+			.contentType(ContentType.XML)
+			.body(usuario)
+		.when()
+			.post("https://restapi.wcaquino.me/usersXML")
+		.then()
+			.log().all()
+			.statusCode(201)
+			.extract().body().as(User.class)
+		;
+		
+		assertThat(usuarioInserido.getId(), is(notNullValue()));
+		assertEquals(usuarioInserido.getName(), "Usuario via XML");
+		assertThat(usuarioInserido.getAge(), is(40));
 	}
 }
