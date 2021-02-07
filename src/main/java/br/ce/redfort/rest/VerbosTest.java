@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import io.restassured.http.ContentType;
+
 public class VerbosTest {
 
 	@Test
@@ -26,6 +28,27 @@ public class VerbosTest {
 			.body("name", is("Jose"))
 			.body("age", is(50))
 		;
+	}
+
+	@Test
+	public void deveSalvarUsuarioViaXMLUsandoObjeto() {
+		User usuario = new User("Usuario via XML", 40);
+		
+		User usuarioInserido = given()
+			.log().all()
+			.contentType(ContentType.XML)
+			.body(usuario)
+		.when()
+			.post("https://restapi.wcaquino.me/usersXML")
+		.then()
+			.log().all()
+			.statusCode(201)
+			.extract().body().as(User.class)
+		;
+		
+		assertThat(usuarioInserido.getId(), is(notNullValue()));
+		assertEquals(usuarioInserido.getName(), "Usuario via XML");
+		assertThat(usuarioInserido.getAge(), is(40));
 	}
 
 	@Test
