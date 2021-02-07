@@ -2,6 +2,7 @@ package br.ce.redfort.rest;
 
 public class User {
 
+	private String id;
 	private String name;
 	private Integer age;
 	private Double salary;
@@ -10,6 +11,14 @@ public class User {
 		super();
 		this.name = name;
 		this.age = age;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getName() {
