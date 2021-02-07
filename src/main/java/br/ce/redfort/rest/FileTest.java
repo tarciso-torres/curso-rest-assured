@@ -3,6 +3,8 @@ package br.ce.redfort.rest;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
+import java.io.File;
+
 import org.junit.Test;
 
 public class FileTest {
@@ -17,6 +19,20 @@ public class FileTest {
 			.log().all()
 			.statusCode(404)
 			.body("error", is("Arquivo não enviado"))
+		;
+	}
+	
+	@Test
+	public void deveFazerUploadArquivo() {
+		given()
+			.log().all()
+			.multiPart("arquivo", new File("src/main/resources/users.pdf"))
+		.when()
+			.post("https://restapi.wcaquino.me/upload")
+		.then()
+			.log().all()
+			.statusCode(200)
+			.body("name", is("users.pdf"))
 		;
 	}
 
